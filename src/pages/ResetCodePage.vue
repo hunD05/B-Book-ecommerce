@@ -1,5 +1,5 @@
 <template>
-    <BreadcrumbComponent>Verify Reset Code </BreadcrumbComponent>
+    <BreadcrumbComponent>Verify Reset Code</BreadcrumbComponent>
     <section
         class="p-[24px] rounded-lg shadow-[0_0_56px_rgba(0,38,3,0.08)] border-1 border-gray-200 md:w-1/4 md:mx-auto mx-5 my-15"
     >
@@ -29,7 +29,7 @@
 
             <button type="submit" class="btn-primary w-full" :disabled="isLoading">
                 <i class="fa-solid fa-circle-notch fa-spin" v-if="isLoading"></i>
-                <span v-else> Send Reset Code </span>
+                <span v-else>Send Reset Code</span>
             </button>
         </Form>
     </section>
@@ -41,28 +41,42 @@ import BreadcrumbComponent from "../components/BreadcrumbComponent.vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { ref } from "vue";
 import * as Yup from "yup";
-import axios from "axios";
+import { toast } from "vue3-toastify";
 
 const apiError = ref(null);
 const router = useRouter();
 const isLoading = ref(false);
 
 const resetCodeSchema = Yup.object({
-    resetCode: Yup.string().required().min(6),
+    resetCode: Yup.string().required("Vui lòng nhập mã reset").min(6, "Mã reset phải có ít nhất 6 ký tự"),
 });
 
 function sendResetCode(values) {
     isLoading.value = true;
-    axios
-        .post("https://ecommerce.routemisr.com/api/v1/auth/verifyResetCode", values)
-        .then((res) => {
-            isLoading.value = false;
-            router.push({ name: "reset-password" });
-        })
-        .catch((err) => {
-            isLoading.value = false;
-            apiError.value = err?.response?.data?.message;
-        });
+
+    // Giả lập kiểm tra mã reset
+    const validResetCode = "123456"; // Mã reset hợp lệ
+
+    setTimeout(() => {
+        if (values.resetCode === validResetCode) {
+            // Thành công: Hiển thị thông báo và chuyển hướng
+            toast.success("Xác minh mã reset thành công!", {
+                autoClose: 3000, // Hiển thị thông báo trong 10 giây
+            });
+
+            // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
+            setTimeout(() => {
+                router.push({ name: "reset-password" });
+            }, 10000);
+        } else {
+            // Thất bại: Hiển thị lỗi
+            apiError.value = "Mã reset không hợp lệ!";
+            toast.error("Mã reset không hợp lệ!", {
+                autoClose: 3000, // Hiển thị thông báo trong 10 giây
+            });
+        }
+        isLoading.value = false;
+    }, 1000); // Giả lập thời gian xử lý 1 giây
 }
 </script>
 

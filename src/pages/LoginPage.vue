@@ -1,5 +1,7 @@
 <template>
-    <BreadcrumbComponent :items="[{ label: 'Trang chủ', to: '/' }, { label: 'Đăng nhập' }]" />
+    <BreadcrumbComponent>
+    <template #default>Đăng nhập</template>
+  </BreadcrumbComponent>
     <section
         class="p-[24px] rounded-lg shadow-[0_0_56px_rgba(0,38,3,0.08)] border-1 border-black md:w-1/4 md:mx-auto mx-5 my-15"
     >
@@ -49,12 +51,12 @@
                         value=""
                         class="w-4 h-4 text-black bg-gray-100 border-black rounded"
                     />
-                    <label for="remember" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-200"
+                    <label for="remember" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-400"
                         >Ghi nhớ tôi</label
                     >
                 </div>
 
-                <RouterLink to="/forget-password" class="text-sm text-black hover:underline dark:text-gray-200"
+                <RouterLink to="/forget-password" class="text-sm text-black hover:underline dark:text-gray-400"
                     >Quên mật khẩu?</RouterLink
                 >
             </div>
@@ -66,7 +68,7 @@
         </Form>
         <p class="text-center mt-5 text-gray-600 dark:text-gray-400">
             Chưa có tài khoản?
-            <span class="text-black dark:text-gray-200">
+            <span class="text-black dark:text-gray-400">
                 <router-link to="/register">Đăng ký ngay</router-link>
             </span>
         </p>
@@ -121,15 +123,21 @@ function login(values) {
             localStorage.setItem("user", JSON.stringify({
                 name: "Manh Hung",
                 email: values.email,
+                phone: "0901234567",
             }));
 
             // Phát sự kiện user-updated để MainNavbar nhận biết
             window.dispatchEvent(new Event("user-updated"));
 
+            // Hiển thị thông báo
             toast.success("Đăng nhập thành công!", {
-                autoClose: 2000,
+                autoClose: 10000, // Hiển thị thông báo trong 10 giây
             });
-            router.push({ name: "home" });
+
+            // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
+            setTimeout(() => {
+                router.push({ name: "home" });
+            }, 2000); // Đợi 10 giây (bằng với autoClose) trước khi chuyển hướng
         } else {
             apiError.value = "Email hoặc mật khẩu không đúng!";
         }

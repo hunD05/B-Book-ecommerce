@@ -18,7 +18,7 @@
                         <a
                             href="#"
                             class="ml-1 text-sm font-medium md:ml-2"
-                            :class="$slots.second ? 'text-gray-500' : 'text-black'"
+                            :class="$slots.second ? 'text-gray-300' : 'text-black'"
                             ><slot></slot
                         ></a>
                     </div>

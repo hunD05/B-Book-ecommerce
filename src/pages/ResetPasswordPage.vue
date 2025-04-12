@@ -1,5 +1,5 @@
 <template>
-    <BreadcrumbComponent>Reset Password </BreadcrumbComponent>
+    <BreadcrumbComponent>Reset Password</BreadcrumbComponent>
     <section
         class="p-[24px] rounded-lg shadow-[0_0_56px_rgba(0,38,3,0.08)] border-1 border-gray-200 md:w-1/4 md:mx-auto mx-5 my-15"
     >
@@ -31,19 +31,19 @@
                     <input
                         v-bind="field"
                         type="password"
-                        id="password"
+                        id="newPassword"
                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-0 focus:border-primary block w-full p-2.5"
                         :class="{ 'border-red-500 focus:border-red-500': errors.length > 0 }"
                         placeholder="New Password"
                         required
                     />
                 </Field>
-                <ErrorMessage name="password" class="mt-2 text-xs text-red-600" />
+                <ErrorMessage name="newPassword" class="mt-2 text-xs text-red-600" />
             </div>
 
             <button type="submit" class="btn-primary w-full" :disabled="isLoading">
                 <i class="fa-solid fa-circle-notch fa-spin" v-if="isLoading"></i>
-                <span v-else> Send Reset Code </span>
+                <span v-else>Reset Password</span>
             </button>
         </Form>
     </section>
@@ -55,34 +55,52 @@ import BreadcrumbComponent from "../components/BreadcrumbComponent.vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
 import { ref } from "vue";
 import * as Yup from "yup";
-import axios from "axios";
+import { toast } from "vue3-toastify";
 
 const apiError = ref(null);
 const router = useRouter();
 const isLoading = ref(false);
 
 const resetPasswordSchema = Yup.object({
-    email: Yup.string().required().email(),
+    email: Yup.string().required("Vui lòng nhập email").email("Email không hợp lệ"),
     newPassword: Yup.string()
-        .required()
+        .required("Vui lòng nhập mật khẩu mới")
         .matches(
             /^(?=.*[A-Za-z])(?=.*\d).{6,15}$/,
-            "Password must be at least 6 characters and contain at least one letter and one number"
+            "Mật khẩu phải có ít nhất 6 ký tự và chứa ít nhất một chữ cái và một số"
         ),
 });
 
 function resetPassword(values) {
     isLoading.value = true;
-    axios
-        .put("https://ecommerce.routemisr.com/api/v1/auth/resetPassword", values)
-        .then((res) => {
-            isLoading.value = false;
-            router.push({ name: "login" });
-        })
-        .catch((err) => {
-            isLoading.value = false;
-            apiError.value = err?.response?.data?.message;
-        });
+
+    // Giả lập kiểm tra email và đặt lại mật khẩu
+    const storedUser = localStorage.getItem("user");
+    let user = storedUser ? JSON.parse(storedUser) : null;
+
+    setTimeout(() => {
+        if (user && user.email === values.email) {
+            // Thành công: Cập nhật mật khẩu (giả lập) và chuyển hướng
+            user.password = values.newPassword; // Lưu ý: Đây chỉ là giả lập, không thực sự lưu mật khẩu an toàn
+            localStorage.setItem("user", JSON.stringify(user));
+
+            toast.success("Đặt lại mật khẩu thành công!", {
+                autoClose: 1000, // Hiển thị thông báo trong 10 giây
+            });
+
+            // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
+            setTimeout(() => {
+                router.push({ name: "login" });
+            }, 3000);
+        } else {
+            // Thất bại: Hiển thị lỗi
+            apiError.value = "Email không tồn tại!";
+            toast.error("Email không tồn tại!", {
+                autoClose: 1000, // Hiển thị thông báo trong 10 giây
+            });
+        }
+        isLoading.value = false;
+    }, 1000); // Giả lập thời gian xử lý 1 giây
 }
 </script>
 

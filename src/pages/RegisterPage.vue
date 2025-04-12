@@ -97,13 +97,14 @@
 <script setup>
 import BreadcrumbComponent from "../components/BreadcrumbComponent.vue";
 import { Form, Field, ErrorMessage } from "vee-validate";
-import { useRouter } from "vue-router";
-import { ref } from "vue";
+import { useRouter, useRoute } from "vue-router";
+import { ref, onMounted } from "vue";
 import * as Yup from "yup";
 import { toast } from "vue3-toastify";
 
 const apiError = ref(null);
 const router = useRouter();
+const route = useRoute();
 const isLoading = ref(false);
 
 const userSchema = Yup.object({
@@ -111,7 +112,10 @@ const userSchema = Yup.object({
     email: Yup.string().required("Email là bắt buộc").email("Email không hợp lệ"),
     phone: Yup.string()
         .required("Số điện thoại là bắt buộc")
-        .matches(/^01[0|1|2|5]\d{8}$/, "Số điện thoại không hợp lệ"),
+        .matches(
+            /^(?:\+84|0)(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-9]|9[0-9])\d{7}$/,
+            "Số điện thoại không hợp lệ (phải bắt đầu bằng +84 hoặc 0, sau đó là đầu số hợp lệ và đủ 10 chữ số)"
+        ),
     password: Yup.string()
         .required("Mật khẩu là bắt buộc")
         .matches(
@@ -124,23 +128,36 @@ const userSchema = Yup.object({
         .oneOf([Yup.ref("password"), null], "Mật khẩu không khớp"),
 });
 
+onMounted(() => {
+    const emailFromQuery = route.query.email;
+    if (emailFromQuery) {
+        userSchema.fields.email.initialValue = emailFromQuery;
+    }
+});
+
 function register(values) {
     isLoading.value = true;
 
-    // Giả lập đăng ký với tài khoản mẫu
     const sampleEmail = "phuhuynh@bbook.vn";
 
     setTimeout(() => {
         if (values.email === sampleEmail) {
             apiError.value = "Email đã tồn tại!";
         } else {
-            // Giả lập lưu token vào localStorage
             localStorage.setItem("token", "fake-token-for-demo");
-            toast.success("Đăng ký thành công!");
+            localStorage.setItem("user", JSON.stringify({
+                name: values.name,
+                email: values.email,
+                phone: values.phone,
+            }));
+            toast.success("Đăng ký thành công!", {
+                autoClose: 10000,
+            });
+            window.dispatchEvent(new Event("user-updated"));
             router.push({ name: "home" });
         }
         isLoading.value = false;
-    }, 1000); // Giả lập thời gian xử lý 1 giây
+    }, 2000);
 }
 </script>
 

@@ -232,9 +232,14 @@ const logout = () => {
   isLoggedIn.value = false;
   userName.value = "";
   userEmail.value = "";
-  toast.success("Đăng xuất thành công!");
-  router.push({ name: "login" });
-  showDropdown.value = false;
+  toast.success("Đăng xuất thành công!", {
+    autoClose: 10000, // Hiển thị thông báo trong 10 giây
+  });
+  // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
+  setTimeout(() => {
+    router.push({ name: "login" });
+    showDropdown.value = false;
+  }, 3000);
 };
 
 let intervalId = null;

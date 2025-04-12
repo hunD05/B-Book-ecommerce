@@ -277,7 +277,9 @@ function decreaseQuantity() {
 function validateQuantity() {
   if (quantity.value < 1 || isNaN(quantity.value)) {
     quantity.value = 1;
-    toast.warning("Số lượng phải lớn hơn 0!");
+    toast.warning("Số lượng phải lớn hơn 0!", {
+      autoClose: 1000, // Tăng thời gian hiển thị lên 10 giây
+    });
   }
 }
 
@@ -300,8 +302,13 @@ const formatDate = (date) => {
 // Thêm vào wishlist
 const addToWishlist = () => {
   if (!isLoggedIn.value) {
-    toast.error("Vui lòng đăng nhập để thêm vào danh sách yêu thích!");
-    router.push({ name: "login" });
+    toast.error("Vui lòng đăng nhập để thêm vào danh sách yêu thích!", {
+      autoClose: 10000, // Tăng thời gian hiển thị lên 10 giây
+    });
+    // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
+    setTimeout(() => {
+      router.push({ name: "login" });
+    }, 2000);
     return;
   }
 
@@ -320,36 +327,47 @@ const addToWishlist = () => {
       window.dispatchEvent(new Event("wishlist-updated"));
       toast.success(
         `Đã thêm "${product.value.title}" vào danh sách yêu thích lúc ${formattedDate}!`,
-        { autoClose: 3000 }
+        { autoClose: 1000 } // Tăng thời gian hiển thị lên 10 giây
       );
     } else {
       const existingItem = wishlistItems.find((item) => item.id === product.value.id);
       toast.info(
         `"${product.value.title}" đã có trong danh sách yêu thích (thêm lúc ${existingItem.addedAt})!`,
-        { autoClose: 3000 }
+        { autoClose: 1000 } // Tăng thời gian hiển thị lên 10 giây
       );
     }
   } else {
-    toast.error("Không thể thêm sản phẩm vào danh sách yêu thích!");
+    toast.error("Không thể thêm sản phẩm vào danh sách yêu thích!", {
+      autoClose: 1000, // Tăng thời gian hiển thị lên 10 giây
+    });
   }
 };
 
 // Thêm vào giỏ hàng
 const addToCart = (productToAdd) => {
   if (!isLoggedIn.value) {
-    toast.error("Vui lòng đăng nhập để thêm vào giỏ hàng!");
-    router.push({ name: "login" });
+    toast.error("Vui lòng đăng nhập để thêm vào giỏ hàng!", {
+      autoClose: 10000, // Tăng thời gian hiển thị lên 10 giây
+    });
+    // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
+    setTimeout(() => {
+      router.push({ name: "login" });
+    }, 2000);
     return;
   }
 
   if (!productToAdd || !productToAdd.id) {
-    toast.error("Không thể thêm sản phẩm vào giỏ hàng!");
+    toast.error("Không thể thêm sản phẩm vào giỏ hàng!", {
+      autoClose: 1000, // Tăng thời gian hiển thị lên 10 giây
+    });
     return;
   }
 
   if (quantity.value < 1 || isNaN(quantity.value)) {
     quantity.value = 1;
-    toast.error("Số lượng phải lớn hơn 0!");
+    toast.error("Số lượng phải lớn hơn 0!", {
+      autoClose: 1000, // Tăng thời gian hiển thị lên 10 giây
+    });
     return;
   }
 
@@ -357,12 +375,12 @@ const addToCart = (productToAdd) => {
   if (existingItem) {
     existingItem.quantity = (existingItem.quantity || 1) + quantity.value;
     toast.success(`Đã tăng số lượng "${productToAdd.title}" trong giỏ hàng!`, {
-      autoClose: 2000,
+      autoClose: 1000, // Tăng thời gian hiển thị lên 10 giây
     });
   } else {
     cartItems.value.push({ ...productToAdd, quantity: quantity.value });
     toast.success(`Đã thêm ${quantity.value} "${productToAdd.title}" vào giỏ hàng!`, {
-      autoClose: 2000,
+      autoClose: 1000, // Tăng thời gian hiển thị lên 10 giây
     });
   }
 

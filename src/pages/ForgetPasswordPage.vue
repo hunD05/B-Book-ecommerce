@@ -67,7 +67,7 @@
         apiError.value = "Email không tồn tại!";
       }
       isLoading.value = false;
-    }, 1000); // Giả lập thời gian xử lý 1 giây
+    }, 2000); // Giả lập thời gian xử lý 1 giây
   }
   </script>
   

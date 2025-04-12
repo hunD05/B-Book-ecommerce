@@ -13,7 +13,9 @@
                     placeholder="Địa chỉ email của bạn"
                     class="border border-gray-300 text-gray-900 rounded-full focus:ring-0 focus:border-black block w-full px-3 py-[14px]"
                 />
-                <button class="btn-primary absolute right-0 top-0">Đăng ký</button>
+                <RouterLink to="/register" class="btn-primary absolute right-0 top-0">
+                    Đăng ký
+                </RouterLink>
             </form>
             <div class="flex mt-4 sm:justify-center sm:mt-0 social-links">
                 <a href="#" class="text-gray-500 hover:text-white">
@@ -140,8 +142,8 @@
     </footer>
 </template>
 
-<script>
-export default {};
+<script setup>
+import { RouterLink } from "vue-router";
 </script>
 
 <style lang="css">
@@ -167,6 +169,7 @@ export default {};
     padding: 14px 20px; 
     border-radius: 9999px; 
     transition: color 0.3s ease; 
+    text-decoration: none; /* Bỏ gạch chân cho RouterLink */
 }
 
 .btn-primary:hover {

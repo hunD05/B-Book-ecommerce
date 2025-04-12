@@ -1,6 +1,6 @@
 <template>
   <div>
-    <BreadcrumbComponent :items="[{ label: 'Trang chủ', to: '/' }, { label: 'Sách yêu thích' }]" />
+    <BreadcrumbComponent>Đăng ký</BreadcrumbComponent>
     <div class="wishlist-page">
       <Loading v-if="isLoading" :is-full-page="true" color="#000000" />
       <div v-else-if="wishlistItems.length === 0" class="empty-wishlist">
