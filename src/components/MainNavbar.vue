@@ -229,9 +229,13 @@ const goToOrders = () => {
 const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
+  localStorage.removeItem("cartItems");
+  localStorage.removeItem("wishlistItems"); 
   isLoggedIn.value = false;
   userName.value = "";
   userEmail.value = "";
+  cartItems.value = []; // Đặt lại giỏ hàng về rỗng
+  numOfCartItems.value = 0; // Cập nhật số lượng giỏ hàng về 0
   toast.success("Đăng xuất thành công!", {
     autoClose: 10000, // Hiển thị thông báo trong 10 giây
   });
