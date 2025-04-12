@@ -6,7 +6,6 @@
     <div class="flex flex-col md:flex-row gap-5">
       <!-- Sidebar bộ lọc (trái) -->
       <div class="w-full md:w-1/5">
-        <h2 class="text-xl font-semibold mb-4">Bộ lọc sản phẩm</h2>
         <!-- Nhóm sản phẩm -->
         <div class="mb-6">
           <h3 class="text-lg font-semibold mb-2">Nhóm sản phẩm</h3>
