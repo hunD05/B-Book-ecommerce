@@ -46,8 +46,13 @@
       <!-- Thanh tìm kiếm (căn giữa) -->
       <div class="flex-1 flex justify-center mx-4">
         <div class="relative w-1/2">
-          <input type="text" placeholder="Nhập từ khóa tìm kiếm"
-            class="w-full p-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
+          <input
+            type="text"
+            v-model="searchQuery"
+            placeholder="Nhập từ khóa tìm kiếm"
+            class="w-full p-2 pl-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            @keydown.enter="handleSearch"
+          />
           <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
         </div>
       </div>
@@ -114,10 +119,32 @@ import { categories } from "@/data/mockData.js";
 
 const router = useRouter();
 
+// Tìm kiếm
+const searchQuery = ref("");
+
 // Dropdown danh mục
 const showCategoryDropdown = ref(false);
 const currentSubcategories = ref([]);
 const selectedCategoryId = ref(null);
+
+// Dropdown người dùng
+const showDropdown = ref(false);
+const isLoggedIn = ref(false);
+const userName = ref("");
+const userEmail = ref("");
+
+// Giỏ hàng và wishlist
+const cartItems = ref([]);
+const numOfCartItems = ref(0);
+const wishlistItems = ref([]);
+const numOfWishlistItems = ref(0);
+
+// Xử lý tìm kiếm
+const handleSearch = () => {
+  if (searchQuery.value.trim()) {
+    router.push({ path: "/products", query: { search: searchQuery.value.trim() } });
+  }
+};
 
 const selectCategory = (categoryId) => {
   selectedCategoryId.value = categoryId;
@@ -128,20 +155,19 @@ const selectCategory = (categoryId) => {
 const hideCategoryDropdown = () => {
   setTimeout(() => {
     showCategoryDropdown.value = false;
-  }, 300); // Độ trễ 300ms để dễ nhấn
+  }, 300);
 };
 
 const filterProducts = (categoryId) => {
-  showCategoryDropdown.value = false; // Ẩn dropdown sau khi chọn
+  showCategoryDropdown.value = false;
   window.dispatchEvent(new CustomEvent("category-selected", { detail: { categoryId } }));
   console.log("Filter products triggered with categoryId:", categoryId);
 };
 
 const filterSubcategory = (subcategory) => {
-  showCategoryDropdown.value = false; // Ẩn dropdown sau khi chọn
+  showCategoryDropdown.value = false;
   const category = categories.find((cat) => cat._id === selectedCategoryId.value);
   const categoryName = category?.name.toLowerCase();
-  // Gửi sự kiện với thông tin danh mục và tiểu mục
   window.dispatchEvent(
     new CustomEvent("subcategory-selected", {
       detail: {
@@ -152,12 +178,6 @@ const filterSubcategory = (subcategory) => {
   );
   console.log("Filter subcategory triggered:", { category: categoryName, subcategory });
 };
-
-// Dropdown người dùng
-const showDropdown = ref(false);
-const isLoggedIn = ref(false);
-const userName = ref("");
-const userEmail = ref("");
 
 const toggleDropdown = () => {
   showDropdown.value = !showDropdown.value;
@@ -175,12 +195,6 @@ const loadUserInfo = () => {
   }
 };
 
-// Giỏ hàng và wishlist
-const cartItems = ref([]);
-const numOfCartItems = ref(0);
-const wishlistItems = ref([]);
-const numOfWishlistItems = ref(0);
-
 const loadCartItems = () => {
   const savedCart = localStorage.getItem("cartItems");
   cartItems.value = savedCart ? JSON.parse(savedCart) : [];
@@ -193,7 +207,6 @@ const loadWishlistItems = () => {
   numOfWishlistItems.value = wishlistItems.value.length;
 };
 
-// Các hàm xử lý
 const handleCartUpdate = () => {
   loadCartItems();
 };
@@ -224,7 +237,6 @@ const logout = () => {
   showDropdown.value = false;
 };
 
-// Polling localStorage
 let intervalId = null;
 const pollLocalStorage = () => {
   intervalId = setInterval(() => {

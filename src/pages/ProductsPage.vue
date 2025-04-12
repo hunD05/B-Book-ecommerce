@@ -6,6 +6,7 @@
     <div class="flex flex-col md:flex-row gap-5">
       <!-- Sidebar bộ lọc (trái) -->
       <div class="w-full md:w-1/5">
+        <h2 class="text-xl font-semibold mb-4">Bộ lọc sản phẩm</h2>
         <!-- Nhóm sản phẩm -->
         <div class="mb-6">
           <h3 class="text-lg font-semibold mb-2">Nhóm sản phẩm</h3>
@@ -189,10 +190,13 @@
 import BreadcrumbComponent from "@/components/BreadcrumbComponent.vue";
 import PaginationComponent from "@/components/PaginationComponent.vue";
 import ProductCard from "@/components/ProductCard.vue";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
+import { useRoute } from "vue-router";
 import Loading from "vue-loading-overlay";
 import { products } from "@/data/mockData.js";
 import { toast } from "vue3-toastify";
+
+const route = useRoute();
 
 const isLoading = ref(false);
 const allProducts = ref([]);
@@ -211,6 +215,9 @@ const selectedCoverTypes = ref([]);
 const selectedLanguages = ref([]);
 const selectedPublishers = ref([]);
 const sortOption = ref("default");
+
+// Từ khóa tìm kiếm từ query parameter
+const searchQuery = ref("");
 
 // Dữ liệu bộ lọc
 const priceRanges = [
@@ -248,11 +255,36 @@ const publisherOptions = computed(() => {
 // Số sản phẩm mỗi trang
 const itemsPerPage = 24;
 
+// Tự động tick checkbox nhóm sản phẩm dựa trên từ khóa tìm kiếm
+function autoTickCategories() {
+  if (!searchQuery.value) {
+    selectedCategories.value = [];
+    return;
+  }
+
+  const searchLower = searchQuery.value.toLowerCase();
+  const matchingCategories = categoryOptions.value.filter((category) =>
+    category.toLowerCase().includes(searchLower)
+  );
+
+  // Tự động tick các checkbox nhóm sản phẩm khớp với từ khóa
+  selectedCategories.value = matchingCategories;
+}
+
 // Lấy sản phẩm sau khi lọc và sắp xếp
 function applyFilters() {
   let filtered = [...products];
 
-  // Lọc theo nhóm sản phẩm
+  // Lọc theo từ khóa tìm kiếm (trong title và category.value)
+  if (searchQuery.value) {
+    const searchLower = searchQuery.value.toLowerCase();
+    filtered = filtered.filter((product) =>
+      product.title.toLowerCase().includes(searchLower) ||
+      product.category.value.toLowerCase().includes(searchLower)
+    );
+  }
+
+  // Lọc theo nhóm sản phẩm (nếu có tick checkbox)
   if (selectedCategories.value.length) {
     filtered = filtered.filter((product) =>
       selectedCategories.value.includes(product.category.value)
@@ -328,7 +360,7 @@ function applySort() {
       sorted.sort((a, b) => (a.priceAfterDiscount || a.price) - (b.priceAfterDiscount || b.price));
       break;
     case "price-desc":
-      sorted.sort((a, b) => (b.priceAfterDiscount || b.price) - (a.priceAfterDiscount || a.price));
+      sorted.sort((a, b) => (b.priceAfterDiscount || b.price) - (a.priceAfterDiscount || b.price));
       break;
     case "rating-desc":
       sorted.sort((a, b) => b.ratingsAverage - a.ratingsAverage);
@@ -353,7 +385,7 @@ function getProducts(pageNumber = 1) {
   // Cập nhật metaData cho phân trang
   metaData.value = {
     currentPage: pageNumber,
-    numberOfPages: Math.ceil(allProducts.value.length / itemsPerPage), // Đổi từ totalPages thành numberOfPages
+    numberOfPages: Math.ceil(allProducts.value.length / itemsPerPage),
     totalItems: allProducts.value.length,
   };
 
@@ -369,10 +401,22 @@ function onCancel() {
   isLoading.value = false;
 }
 
+// Theo dõi thay đổi query parameter để cập nhật tìm kiếm
+watch(
+  () => route.query.search,
+  (newSearch) => {
+    searchQuery.value = newSearch || "";
+    autoTickCategories(); // Tự động tick checkbox
+    applyFilters();
+  }
+);
+
 onMounted(() => {
   allProducts.value = products;
   resultCount.value = products.length;
-  getProducts();
+  searchQuery.value = route.query.search || "";
+  autoTickCategories(); // Tự động tick checkbox khi load trang
+  applyFilters();
 });
 </script>
 
