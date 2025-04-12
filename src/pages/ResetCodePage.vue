@@ -67,7 +67,7 @@ function sendResetCode(values) {
             // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
             setTimeout(() => {
                 router.push({ name: "reset-password" });
-            }, 10000);
+            }, 2000);
         } else {
             // Thất bại: Hiển thị lỗi
             apiError.value = "Mã reset không hợp lệ!";

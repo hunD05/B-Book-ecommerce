@@ -72,18 +72,6 @@
                 <router-link to="/register">Đăng ký ngay</router-link>
             </span>
         </p>
-        <!-- Phần tài khoản mẫu -->
-        <div class="mt-5 p-4 border border-black rounded-lg bg-gray-50 dark:bg-gray-800">
-            <p class="text-center text-sm text-gray-700 dark:text-gray-300">
-                Bạn có thể dùng tài khoản mẫu để đăng nhập ngay:
-            </p>
-            <p class="text-center text-sm text-gray-900 font-medium mt-2 dark:text-gray-200">
-                Email: <span class="text-black dark:text-gray-200">phuhuynh@bbook.vn</span>
-            </p>
-            <p class="text-center text-sm text-gray-900 font-medium dark:text-gray-200">
-                Mật khẩu: <span class="text-black dark:text-gray-200">Matkhau123</span>
-            </p>
-        </div>
     </section>
 </template>
 
@@ -112,38 +100,33 @@ const userSchema = Yup.object({
 function login(values) {
     isLoading.value = true;
 
-    // Giả lập đăng nhập với tài khoản mẫu
-    const sampleEmail = "phuhuynh@bbook.vn";
-    const samplePassword = "Matkhau123";
-
     setTimeout(() => {
-        if (values.email === sampleEmail && values.password === samplePassword) {
-            // Lưu token và thông tin người dùng vào localStorage
-            localStorage.setItem("token", "fake-token-for-demo");
-            localStorage.setItem("user", JSON.stringify({
-                name: "Manh Hung",
-                email: values.email,
-                phone: "0901234567",
-            }));
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const user = users.find(
+            (u) => u.email === values.email && u.password === values.password
+        );
 
-            // Phát sự kiện user-updated để MainNavbar nhận biết
+        if (user) {
+            localStorage.setItem("token", "fake-token-for-demo");
+            localStorage.setItem("user", JSON.stringify(user));
+
             window.dispatchEvent(new Event("user-updated"));
 
-            // Hiển thị thông báo
             toast.success("Đăng nhập thành công!", {
-                autoClose: 10000, // Hiển thị thông báo trong 10 giây
+                autoClose: 5000,
             });
 
-            // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
             setTimeout(() => {
                 router.push({ name: "home" });
-            }, 2000); // Đợi 10 giây (bằng với autoClose) trước khi chuyển hướng
+            }, 2000);
         } else {
             apiError.value = "Email hoặc mật khẩu không đúng!";
         }
+
         isLoading.value = false;
     }, 1000);
 }
+
 
 // Kiểm tra trạng thái đăng nhập khi vào trang
 onMounted(() => {

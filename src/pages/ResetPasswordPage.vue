@@ -74,34 +74,38 @@ const resetPasswordSchema = Yup.object({
 function resetPassword(values) {
     isLoading.value = true;
 
-    // Giả lập kiểm tra email và đặt lại mật khẩu
-    const storedUser = localStorage.getItem("user");
-    let user = storedUser ? JSON.parse(storedUser) : null;
-
     setTimeout(() => {
-        if (user && user.email === values.email) {
-            // Thành công: Cập nhật mật khẩu (giả lập) và chuyển hướng
-            user.password = values.newPassword; // Lưu ý: Đây chỉ là giả lập, không thực sự lưu mật khẩu an toàn
-            localStorage.setItem("user", JSON.stringify(user));
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const userIndex = users.findIndex(u => u.email === values.email);
+
+        if (userIndex !== -1) {
+            users[userIndex].password = values.newPassword;
+            localStorage.setItem("users", JSON.stringify(users));
+
+            // Nếu user đang đăng nhập đúng là người vừa reset thì cập nhật cả trong localStorage
+            const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+            if (currentUser && currentUser.email === values.email) {
+                localStorage.setItem("user", JSON.stringify(users[userIndex]));
+            }
 
             toast.success("Đặt lại mật khẩu thành công!", {
-                autoClose: 1000, // Hiển thị thông báo trong 10 giây
+                autoClose: 1000,
             });
 
-            // Trì hoãn chuyển hướng để thông báo hiển thị đủ thời gian
             setTimeout(() => {
                 router.push({ name: "login" });
-            }, 3000);
+            }, 2000);
         } else {
-            // Thất bại: Hiển thị lỗi
             apiError.value = "Email không tồn tại!";
             toast.error("Email không tồn tại!", {
-                autoClose: 1000, // Hiển thị thông báo trong 10 giây
+                autoClose: 1000,
             });
         }
+
         isLoading.value = false;
-    }, 1000); // Giả lập thời gian xử lý 1 giây
+    }, 1000);
 }
+
 </script>
 
 <style lang="scss" scoped></style>

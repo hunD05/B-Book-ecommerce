@@ -138,27 +138,38 @@ onMounted(() => {
 function register(values) {
     isLoading.value = true;
 
-    const sampleEmail = "phuhuynh@bbook.vn";
-
     setTimeout(() => {
-        if (values.email === sampleEmail) {
+        // Lấy danh sách user hiện tại từ localStorage hoặc khởi tạo mảng rỗng
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+
+        const existedUser = users.find((u) => u.email === values.email);
+        if (existedUser) {
             apiError.value = "Email đã tồn tại!";
         } else {
-            localStorage.setItem("token", "fake-token-for-demo");
-            localStorage.setItem("user", JSON.stringify({
+            const newUser = {
                 name: values.name,
                 email: values.email,
                 phone: values.phone,
-            }));
+                password: values.password,
+            };
+
+            users.push(newUser);
+            localStorage.setItem("users", JSON.stringify(users));
+            localStorage.setItem("token", "fake-token-for-demo");
+            localStorage.setItem("user", JSON.stringify(newUser));
+
             toast.success("Đăng ký thành công!", {
-                autoClose: 10000,
+                autoClose: 5000,
             });
+
             window.dispatchEvent(new Event("user-updated"));
             router.push({ name: "home" });
         }
+
         isLoading.value = false;
-    }, 2000);
+    }, 1000);
 }
+
 </script>
 
 <style lang="scss" scoped></style>

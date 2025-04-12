@@ -54,21 +54,29 @@
   });
   
   function sendResetCode(values) {
-    isLoading.value = true;
-  
-    // Giả lập kiểm tra email và gửi mã xác nhận
-    const sampleEmail = "phuhuynh@bbook.vn"; // Email mẫu từ LoginPage.vue
-  
-    setTimeout(() => {
-      if (values.email === sampleEmail) {
-        toast.success("Mã xác nhận đã được gửi đến email của bạn!");
-        router.push({ name: "verify-reset-code" });
-      } else {
-        apiError.value = "Email không tồn tại!";
-      }
-      isLoading.value = false;
-    }, 2000); // Giả lập thời gian xử lý 1 giây
-  }
+  isLoading.value = true;
+
+  setTimeout(() => {
+    const users = JSON.parse(localStorage.getItem("users") || "[]");
+    const user = users.find(u => u.email === values.email);
+
+    if (user) {
+      // Lưu email để dùng tiếp ở bước xác nhận/reset password (tùy bạn xử lý tiếp)
+      localStorage.setItem("resetEmail", values.email);
+
+      toast.success("Mã xác nhận đã được gửi đến email của bạn!");
+      router.push({ name: "verify-reset-code" }); // Điều hướng sang trang xác nhận mã
+    } else {
+      apiError.value = "Email không tồn tại!";
+      toast.error("Email không tồn tại!", {
+        autoClose: 1000,
+      });
+    }
+
+    isLoading.value = false;
+  }, 1500);
+}
+
   </script>
   
   <style lang="scss" scoped></style>
